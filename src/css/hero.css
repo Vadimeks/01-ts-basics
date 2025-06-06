@@ -1,3 +1,49 @@
-.hero-section {
-    background-color: brown;
+.hero-first-block {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 640px;
+    max-height: 900px;
+    padding-top: 215.5px;
+    padding-bottom: 294.5px;
+}
+
+.hero-descr {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 640px;
+    max-height: 390px;
+}
+
+.main-title {
+    font-size: 84px;
+    line-height: 1.11;
+    letter-spacing: -0.01em;
+    margin: 0;
+}
+
+.hero-text {
+    font-size: 20px;
+    line-height: 1.5;
+    letter-spacing: 0;
+}
+
+.explore-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #764191;
+    padding: 10px 24px;
+    width: 206px;
+    height: 47px;
+    color: rgba(255, 255, 255, 1);
+    font-weight: 500;
+    border-radius: 12px;
+}
+
+.explore-btn-icon {
+    fill: currentColor;
+
 }
