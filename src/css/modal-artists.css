@@ -1,23 +1,534 @@
+/* =============================================== */
+/* Асновы модальнага акна */
+/* =============================================== */
 .modal-artists {
-    background-color: antiquewhite;
     display: none;
-}
 
-/* .backdrop {
-    background-color: rgba(0, 168, 107, 0.8);
+    /* Зменіце з none на flex */
+    opacity: 0;
+    /* Зменіце з 0 на 1 */
+    visibility: hidden;
+    /* Схавана па змаўчанні */
     position: fixed;
-    top: 0;
+    /* Фіксавана на экране, паверх усяго */
+    z-index: 1000;
+    /* Паверх усіх элементаў */
     left: 0;
+    top: 0;
     width: 100%;
     height: 100%;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 0.4), visibility 250ms cubic-bezier(0.4, 0, 0.2, 0.4);
+    background-color: rgba(0, 0, 0, 1);
+    /* Цёмны, напаўпразрысты фон */
+    /* Выкарыстоўваем Flexbox для цэнтравання змесціва */
+    justify-content: center;
+    align-items: center;
+    padding: 64px;
+    /* Падынг 64px з усіх бакоў, як патрабуецца */
+    box-sizing: border-box;
+    /* Улічвае падынг у памеры */
+    overflow-y: auto;
+    /* Дазваляе пракрутку ўсяго модала, калі ён большы за экран */
+    /* Для плаўнага з'яўлення/знікнення */
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.backdrop.is-open {
+.modal-artists.open {
     opacity: 1;
     visibility: visible;
-    pointer-events: auto;
-    z-index: 1001; } */
+    display: flex;
+    /* Паказваем мадальнае акно, калі яно "адкрыта" */
+}
+
+/* Забарона скролінгу фону, калі модалка адкрыта */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* =============================================== */
+/* Кантэйнер для ўсяго змесціва ўнутры модала */
+/* =============================================== */
+.modal-content-wrapper {
+    background-color: #fefefe;
+    border-radius: 12px;
+    /* Трохі больш закругленыя вуглы */
+    padding: 30px;
+    /* Унутраны падынг кантэнту */
+    max-width: 1000px;
+    /* Максімальная шырыня для лепшай чытальнасці */
+    width: 100%;
+    /* Займае ўсю даступную шырыню ўнутры падынгу 64px */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    /* Больш выразны цень */
+    position: relative;
+    /* Цяпер ён адносны для кнопкі закрыцця, калі яе змясціць у яго */
+    /* Так як модал сам мае overflow-y: auto, гэты кантэйнер можа быць простым блокам.
+       Калі б модал не пракручваўся, а толькі гэты блок, тады тут быў бы overflow-y: auto і max-height. */
+}
+
+/* =============================================== */
+/* Кнопка закрыцця */
+/* =============================================== */
+.close-modal {
+    position: absolute;
+    /* Абсалютна пазіцыянаваная адносна .modal-artists */
+    top: 20px;
+    /* Адступ зверху */
+    right: 20px;
+    /* Адступ справа */
+    color: #888;
+    font-size: 36px;
+    /* Больш буйны крыжык */
+    font-weight: bold;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 5px 10px;
+    /* Трохі падынгі для зручнасці кліка */
+    line-height: 1;
+    /* Для лепшага вертыкальнага выраўноўвання крыжыка */
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.close-modal:hover,
+.close-modal:focus {
+    color: #333;
+    transform: rotate(90deg);
+    /* Невялікая анімацыя */
+    outline: none;
+    /* Выдаліць стандартны фокус */
+}
+
+/* =============================================== */
+/* Загрузнік */
+/* =============================================== */
+#modalLoader {
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #3498db;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin: 50px auto;
+    /* Цэнтраванне */
+    display: none;
+    /* Схавана па змаўчанні */
+    text-indent: -9999px;
+    /* Схаваць тэкст "Загрузка..." */
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* =============================================== */
+/* Загаловак артыста */
+/* =============================================== */
+.modal-title {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 700;
+}
+
+/* =============================================== */
+/* Асноўны блок інфармацыі пра артыста (фота + дэталі) */
+/* =============================================== */
+.artist-main-block {
+    display: flex;
+    flex-wrap: wrap;
+    /* Для адаптыўнасці на малых экранах */
+    gap: 30px;
+    /* Адлегласць паміж фота і тэкстам */
+    align-items: flex-start;
+    /* Выраўноўванне элементаў паверсе */
+    margin-bottom: 40px;
+}
+
+
+.artist-info-and-bio {
+    flex-grow: 1;
+    /* Займе ўсю даступную прастору */
+    min-width: 300px;
+    /* Мінімальная шырыня, каб не сціскалася занадта моцна */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* Адлегласць паміж спісам інфо, біяграфіяй і жанрамі */
+}
+
+/* =============================================== */
+/* Спіс інфармацыі пра артыста (Years active, Sex, Members, Country) */
+/* =============================================== */
+.artist-info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    /* Для прыгожага размяшчэння элементаў */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    /* 2 калонкі на большых экранах */
+    gap: 15px;
+    background-color: #f8f8f8;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.artist-info-item h3 {
+    margin: 0 0 5px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.artist-info-item p {
+    margin: 0;
+    font-size: 1em;
+    color: #333;
+    font-weight: 500;
+}
+
+/* =============================================== */
+/* Біяграфія */
+/* =============================================== */
+.artist-bio h3 {
+    margin: 0 0 10px;
+    font-size: 1.2em;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.artist-info-bio-text {
+    /* Зменены селектар */
+    margin: 0;
+    line-height: 1.7;
+    color: #444;
+    text-align: justify;
+}
+
+/* =============================================== */
+/* Спіс жанраў */
+/* =============================================== */
+.genres-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    /* Каб жанры пераносіліся на новы радок */
+    gap: 10px;
+    /* Адлегласць паміж асобнымі жанрамі */
+    margin-top: 15px;
+}
+
+.genres-list .ganres-item {
+    /* Зменены клас li на .ganres-item */
+    background-color: #e0e7f7;
+    color: #4a679e;
+    padding: 8px 15px;
+    border-radius: 20px;
+    /* Больш закругленыя "таблеткі" */
+    font-size: 0.9em;
+    font-weight: 600;
+    white-space: nowrap;
+    /* Каб тэкст жанру не пераносіўся */
+}
+
+/* =============================================== */
+/* Спіс альбомаў */
+/* =============================================== */
+.artist-albums-list {
+    list-style: none;
+    padding: 0;
+    margin: 40px 0 20px;
+    /* Адступ зверху, знізу для пагінацыі */
+    display: grid;
+    /* 4 калонкі на шырокіх экранах, з аўто-падгонкой для меншых */
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 25px;
+    /* Адлегласць паміж карткамі альбомаў */
+}
+
+.artist-albums-list .artist-albums-item {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.artist-albums-list .artist-albums-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.artist-albums-list .artist-albums-item h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #007bff;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+/* =============================================== */
+/* Спіс трэкаў у альбоме */
+/* =============================================== */
+.album-track-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #ddd;
+    /* Агульная рамка для табліцы трэкаў */
+    border-radius: 8px;
+    /* Закругленыя вуглы для ўсяго спісу трэкаў */
+    overflow: hidden;
+    /* Каб border-radius працаваў для змесціва */
+}
+
+.album-track-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.album-track-item:last-child {
+    border-bottom: none;
+    /* Выдаліць ніжнюю мяжу ў апошняга элемента */
+}
+
+/* Стылізацыя кожнага другога радка трэка */
+.album-track-item.even-row {
+    background-color: #f9f9f9;
+    /* Шэры фон */
+}
+
+/* Загаловак трэкаў */
+.album-track-item.track-header {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #333;
+    border-bottom: 2px solid #ddd;
+}
+
+.album-track-item .track-info-list {
+    display: flex;
+    width: 100%;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.album-track-item .track-info-item {
+    flex: 1;
+    /* Раўнамернае размеркаванне прасторы */
+    padding: 0 5px;
+    text-align: left;
+    font-size: 0.9em;
+    color: #444;
+}
+
+.album-track-item .track-info-item:nth-child(2) {
+    /* Для часу */
+    flex: 0 0 80px;
+    /* Фіксаваная шырыня для часу */
+    text-align: right;
+}
+
+.album-track-item .track-info-item:nth-child(3) {
+    /* Для спасылкі */
+    flex: 0 0 70px;
+    /* Фіксаваная шырыня для кнопкі */
+    text-align: center;
+}
+
+/* Кнопка YouTube */
+.yt-button {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8em;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    display: inline-flex;
+    /* Каб тэкст і іконка былі ў адным радку */
+    align-items: center;
+    justify-content: center;
+}
+
+.yt-button:hover {
+    background-color: #cc0000;
+    transform: translateY(-1px);
+}
+
+/* =============================================== */
+/* Стылі для пагінацыі */
+/* =============================================== */
+.pagination-controls {
+    text-align: center;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    /* Для візуальнага водступу ад ніжняга края модала */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.pagination-controls button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.pagination-controls button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.pagination-controls span {
+    font-weight: bold;
+    color: #555;
+    font-size: 1.1em;
+}
+
+/* =============================================== */
+/* Медыя-запыты для адаптыўнасці */
+/* =============================================== */
+@media (max-width: 992px) {
+    .modal-artists {
+        padding: 40px;
+    }
+
+    .modal-content-wrapper {
+        padding: 25px;
+    }
+
+    .artist-main-block {
+        flex-direction: column;
+        align-items: center;
+        /* Цэнтраванне элементаў у калонцы */
+        text-align: center;
+        /* Цэнтраванне тэксту ў гэтым блоку */
+    }
+
+    .hero-artist-img {
+        margin-bottom: 25px;
+        /* Водступ знізу для фота */
+    }
+
+    .artist-info-list {
+        grid-template-columns: 1fr;
+        /* Адзін слупок */
+    }
+
+    .artist-albums-list {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        /* Можа быць 2 ці 3 у радку */
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-artists {
+        padding: 20px;
+    }
+
+    .modal-content-wrapper {
+        padding: 20px;
+    }
+
+    .modal-title {
+        font-size: 2em;
+    }
+
+    .close-modal {
+        font-size: 30px;
+        top: 10px;
+        right: 10px;
+    }
+
+    .artist-albums-list {
+        grid-template-columns: 1fr;
+        /* Адзін альбом у радку на мабільных */
+    }
+}
+
+@media (max-width: 576px) {
+    .modal-artists {
+        padding: 10px;
+    }
+
+    .modal-content-wrapper {
+        padding: 15px;
+    }
+
+    .modal-title {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+
+    .hero-artist-img {
+        width: 180px;
+        height: 180px;
+    }
+
+    .artist-info-list {
+        gap: 10px;
+    }
+
+    .artist-albums-list .artist-albums-item {
+        padding: 15px;
+    }
+
+    .album-track-item {
+        padding: 8px 10px;
+    }
+
+    .album-track-item .track-info-item {
+        font-size: 0.8em;
+    }
+
+    .album-track-item .track-info-item:nth-child(2) {
+        flex: 0 0 60px;
+    }
+
+    .album-track-item .track-info-item:nth-child(3) {
+        flex: 0 0 60px;
+    }
+
+    .yt-button {
+        padding: 4px 8px;
+        font-size: 0.7em;
+    }
+
+    .pagination-controls button {
+        padding: 8px 15px;
+        font-size: 0.9em;
+    }
+
+    .pagination-controls span {
+        font-size: 1em;
+    }
+}

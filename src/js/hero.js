@@ -1,33 +1,32 @@
-// hero-images.js
+// js/hero.js
+import axios from 'axios';
+
 document.addEventListener('DOMContentLoaded', () => {
-  // === ЛОГІКА ДЛЯ ЗАГРУЗКІ МАЛЮНКАЎ АРТЫСТАЎ ===
+  // === ЛОГІКА ДЛЯ ЗАГРУЗКІ МАЛЮНКАЎ АРТЫСТАЎ У HERO-СЕКЦЫЮ ===
   const heroColumnOne = document.querySelector('.hero-column-one');
   const heroColumnTwo = document.querySelector('.hero-column-two');
 
-  async function fetchArtists() {
+  const API_BASE_URL = 'https://sound-wave.b.goit.study/api';
+
+  async function fetchHeroArtists() {
     try {
-      const response = await fetch(
-        'https://sound-wave.b.goit.study/api/artists?limit=6'
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data.artists || [];
+      // Запытваем 6 артыстаў для Hero-секцыі
+      const response = await axios.get(`${API_BASE_URL}/artists?limit=6`);
+      // API вяртае аб'ект з полем 'artists' або наўпрост масіў
+      const artists = response.data.artists || response.data || [];
+      return artists;
     } catch (error) {
-      console.error('Памылка пры загрузцы артыстаў:', error);
+      console.error('Памылка пры загрузцы артыстаў для Hero-секцыі:', error);
       return [];
     }
   }
 
   async function displayHeroArtists() {
-    const artists = await fetchArtists();
+    const artists = await fetchHeroArtists();
 
     if (artists.length === 0) {
       console.warn(
-        'Няма дадзеных пра артыстаў для адлюстравання ў Hero-секцыі.'
+        'Няма дадзеных пра артыстаў для адлюстравання ў Hero-секцыі. Праверце API.'
       );
       return;
     }
@@ -39,37 +38,39 @@ document.addEventListener('DOMContentLoaded', () => {
       const imgElements = columnElement.querySelectorAll('.hero-artist-img');
       artistData.forEach((artist, index) => {
         if (imgElements[index]) {
-          imgElements[index].src = artist.strArtistThumb;
+          imgElements[index].src =
+            artist.strArtistThumb ||
+            'https://via.placeholder.com/150x150?text=No+Image';
           imgElements[index].alt = artist.strArtist || 'Artist photo';
         }
       });
     }
 
-    populateColumn(heroColumnOne, columnOneArtists);
-    populateColumn(heroColumnTwo, columnTwoArtists);
+    if (heroColumnOne) {
+      populateColumn(heroColumnOne, columnOneArtists);
+    }
+    if (heroColumnTwo) {
+      populateColumn(heroColumnTwo, columnTwoArtists);
+    }
   }
 
   // Выклікаем функцыю для адлюстравання малюнкаў пры загрузцы DOM
   displayHeroArtists();
 
-  // --- НОВАЯ ЛОГІКА ДЛЯ КНОПКІ "EXPLORE ARTISTS" ---
+  // --- ЛОГІКА ДЛЯ КНОПКІ "EXPLORE ARTISTS" ---
   const exploreBtn = document.querySelector('.explore-btn');
+  const artistsSection = document.getElementById('artists-section'); // Атрымліваем секцыю артыстаў
 
-  if (exploreBtn) {
+  if (exploreBtn && artistsSection) {
     exploreBtn.addEventListener('click', event => {
-      // event.preventDefault(); // Гэта можна выкарыстоўваць, калі кнопка ўнутры формы,
-      // каб прадухіліць адпраўку формы
-
-      const targetSectionId = 'artists'; // ID вашай секцыі Artists
-      const targetSection = document.getElementById(targetSectionId);
-
-      if (targetSection) {
-        targetSection.scrollIntoView({
-          behavior: 'smooth', // Плаўная пракрутка
-        });
-      } else {
-        console.warn(`Секцыя з ID "${targetSectionId}" не знойдзена.`);
-      }
+      // event.preventDefault(); // Залежыць ад таго, дзе кнопка размешчана
+      artistsSection.scrollIntoView({
+        behavior: 'smooth', // Плаўная пракрутка
+      });
     });
+  } else if (!artistsSection) {
+    console.warn(
+      `Секцыя з ID "artists-section" не знойдзена для кнопкі Explore.`
+    );
   }
 });

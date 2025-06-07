@@ -1,6 +1,33 @@
-<div class="modal-artists">
-    <h3>Modal</h3>
-
-
-
+<div class="modal-artists container" id="artistModal">
+    <div class="modal-content">
+        <button class="close-modal">&times;</button>
+        <div id="modalLoader" class="loader"></div>
+        <div class="modal-body">
+            <div class="hero-artist-container">
+                <img src="" alt="Artist photo" class="hero-artist-img">
+                <h2 class="modal-title"></h2>
+            </div>
+            <div class="artist-details">
+                <h3>Інформація про виконавця</h3>
+                <ul class="artist-info-list">
+                </ul>
+                <h3>Біографія</h3>
+                <p class="artist-info-bio-text"></p>
+                <h3>Жанри</h3>
+                <ul class="genres-list">
+                </ul>
+                <h3>Альбоми</h3>
+                <ul class="artist-albums-list">
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
+
+<section id="artists" class="artists-section-container">
+    <div class="container">
+        <h2>Наші Виконавці</h2>
+        <div id="artists-cards-container" class="artists-grid-container">
+        </div>
+    </div>
+</section>
