@@ -3,31 +3,31 @@
         <button class="close-modal">&times;</button>
         <div id="modalLoader" class="loader"></div>
         <div class="modal-body">
-            <div class="hero-artist-container">
-                <img src="" alt="Artist photo" class="hero-artist-img">
-                <h2 class="modal-title"></h2>
+            <!-- ВЕРХНІ БЛОК: Фота + Апісанне -->
+            <div class="artist-overview-block">
+                <!-- Карцінка злева -->
+                <div class="hero-artist-container">
+                    <img src="" alt="Artist photo" class="hero-artist-img">
+                    <!-- Назва артыста будзе тут -->
+                    <h2 class="modal-title"></h2>
+                </div>
+                <!-- Апісанне справа -->
+                <div class="artist-description-details">
+                    <h3>Інформація про виконавця</h3>
+                    <ul class="artist-info-list"></ul>
+                    <h3>Жанры</h3>
+                    <ul class="genres-list"></ul>
+                    <h3>Біографія</h3>
+                    <p class="artist-info-bio-text"></p>
+                </div>
             </div>
-            <div class="artist-details">
-                <h3>Інформація про виконавця</h3>
-                <ul class="artist-info-list">
-                </ul>
-                <h3>Біографія</h3>
-                <p class="artist-info-bio-text"></p>
-                <h3>Жанри</h3>
-                <ul class="genres-list">
-                </ul>
-                <h3>Альбоми</h3>
-                <ul class="artist-albums-list">
-                </ul>
+
+            <!-- НІЖНІ БЛОК: Толькі альбомы -->
+            <div class="artist-albums-block">
+                <h3>Альбомы</h3>
+                <ul class="artist-albums-list"></ul>
+                <!-- Кнопкі пагінацыі для альбомаў будуць дададзены тут JS-ом -->
             </div>
         </div>
     </div>
 </div>
-
-<section id="artists" class="artists-section-container">
-    <div class="container">
-        <h2>Наші Виконавці</h2>
-        <div id="artists-cards-container" class="artists-grid-container">
-        </div>
-    </div>
-</section>

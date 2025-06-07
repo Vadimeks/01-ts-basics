@@ -3,12 +3,9 @@
 /* =============================================== */
 .modal-artists {
     display: none;
-
-    /* Зменіце з none на flex */
-    opacity: 0;
-    /* Зменіце з 0 на 1 */
-    visibility: hidden;
     /* Схавана па змаўчанні */
+    opacity: 0;
+    visibility: hidden;
     position: fixed;
     /* Фіксавана на экране, паверх усяго */
     z-index: 1000;
@@ -19,17 +16,18 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 1);
     /* Цёмны, напаўпразрысты фон */
-    /* Выкарыстоўваем Flexbox для цэнтравання змесціва */
     justify-content: center;
+    /* Цэнтраванне змесціва */
     align-items: center;
+    /* Цэнтраванне змесціва */
     padding: 64px;
-    /* Падынг 64px з усіх бакоў, як патрабуецца */
+    /* Падынг 64px з усіх бакоў */
     box-sizing: border-box;
     /* Улічвае падынг у памеры */
     overflow-y: auto;
     /* Дазваляе пракрутку ўсяго модала, калі ён большы за экран */
-    /* Для плаўнага з'яўлення/знікнення */
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    /* Для плаўнага з'яўлення/знікнення */
 }
 
 .modal-artists.open {
@@ -47,10 +45,9 @@ body.modal-open {
 /* =============================================== */
 /* Кантэйнер для ўсяго змесціва ўнутры модала */
 /* =============================================== */
-.modal-content-wrapper {
+.modal-content {
     background-color: #fefefe;
     border-radius: 12px;
-    /* Трохі больш закругленыя вуглы */
     padding: 30px;
     /* Унутраны падынг кантэнту */
     max-width: 1000px;
@@ -60,9 +57,11 @@ body.modal-open {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     /* Больш выразны цень */
     position: relative;
-    /* Цяпер ён адносны для кнопкі закрыцця, калі яе змясціць у яго */
-    /* Так як модал сам мае overflow-y: auto, гэты кантэйнер можа быць простым блокам.
-       Калі б модал не пракручваўся, а толькі гэты блок, тады тут быў бы overflow-y: auto і max-height. */
+    /* Адносны для кнопкі закрыцця */
+    max-height: 90vh;
+    /* Абмежаваць вышыню, каб мадальнае акно не расцягвалася на ўвесь экран */
+    overflow-y: auto;
+    /* Каб скроліўся сам кантэнт модала, калі ён большы за max-height */
 }
 
 /* =============================================== */
@@ -70,22 +69,16 @@ body.modal-open {
 /* =============================================== */
 .close-modal {
     position: absolute;
-    /* Абсалютна пазіцыянаваная адносна .modal-artists */
     top: 20px;
-    /* Адступ зверху */
     right: 20px;
-    /* Адступ справа */
     color: #888;
     font-size: 36px;
-    /* Больш буйны крыжык */
     font-weight: bold;
     cursor: pointer;
     background: none;
     border: none;
     padding: 5px 10px;
-    /* Трохі падынгі для зручнасці кліка */
     line-height: 1;
-    /* Для лепшага вертыкальнага выраўноўвання крыжыка */
     transition: color 0.2s ease, transform 0.2s ease;
 }
 
@@ -93,9 +86,7 @@ body.modal-open {
 .close-modal:focus {
     color: #333;
     transform: rotate(90deg);
-    /* Невялікая анімацыя */
     outline: none;
-    /* Выдаліць стандартны фокус */
 }
 
 /* =============================================== */
@@ -109,11 +100,8 @@ body.modal-open {
     height: 60px;
     animation: spin 1s linear infinite;
     margin: 50px auto;
-    /* Цэнтраванне */
     display: none;
-    /* Схавана па змаўчанні */
     text-indent: -9999px;
-    /* Схаваць тэкст "Загрузка..." */
 }
 
 @keyframes spin {
@@ -127,40 +115,67 @@ body.modal-open {
 }
 
 /* =============================================== */
-/* Загаловак артыста */
+/* Загаловак артыста (назва) */
 /* =============================================== */
 .modal-title {
     text-align: center;
+    /* Цэнтраванне назвы артыста пад фота */
     color: #2c3e50;
+    margin-top: 15px;
+    /* Адступ зверху ад фота */
     margin-bottom: 30px;
+    /* Адступ знізу ад інфы */
     font-size: 2.5em;
     font-weight: 700;
 }
 
 /* =============================================== */
-/* Асноўны блок інфармацыі пра артыста (фота + дэталі) */
+/* НОВЫ ВЕРХНІ БЛОК: Фота + Апісанне (Flexbox) */
 /* =============================================== */
-.artist-main-block {
+.artist-overview-block {
     display: flex;
     flex-wrap: wrap;
-    /* Для адаптыўнасці на малых экранах */
+    /* Дазваляе пераносіцца на малых экранах */
     gap: 30px;
-    /* Адлегласць паміж фота і тэкстам */
+    /* Адлегласць паміж фота-блокам і апісаннем */
     align-items: flex-start;
     /* Выраўноўванне элементаў паверсе */
     margin-bottom: 40px;
+    /* Адлегласць паміж верхнім блокам і ніжнім (альбомамі) */
 }
 
+/* Канэйнер толькі для фота і назвы артыста */
+.hero-artist-container {
+    flex-shrink: 0;
+    /* Не дазваляем сціскацца */
+    text-align: center;
+    /* max-width: 280px;  Калі патрэбна абмежаваць шырыню кантэйнера з фота */
+    width: 100%;
+    /* Па змаўчанні на мабільных займае ўсю шырыню */
+}
 
-.artist-info-and-bio {
+/* Фота артыста */
+.hero-artist-img {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin: 0 auto;
+    /* Цэнтраванне выявы */
+    display: block;
+}
+
+/* Канэйнер для апісання (справа ад фота) */
+.artist-description-details {
     flex-grow: 1;
     /* Займе ўсю даступную прастору */
     min-width: 300px;
     /* Мінімальная шырыня, каб не сціскалася занадта моцна */
     display: flex;
     flex-direction: column;
+    /* Элементы ўнутры ідуць адзін за адным па вертыкалі */
     gap: 20px;
-    /* Адлегласць паміж спісам інфо, біяграфіяй і жанрамі */
+    /* Адлегласць паміж спісам інфо, жанрамі і біяграфіяй */
 }
 
 /* =============================================== */
@@ -171,7 +186,6 @@ body.modal-open {
     padding: 0;
     margin: 0;
     display: grid;
-    /* Для прыгожага размяшчэння элементаў */
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     /* 2 калонкі на большых экранах */
     gap: 15px;
@@ -194,41 +208,22 @@ body.modal-open {
 }
 
 /* =============================================== */
-/* Біяграфія */
-/* =============================================== */
-.artist-bio h3 {
-    margin: 0 0 10px;
-    font-size: 1.2em;
-    color: #555;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 5px;
-}
-
-.artist-info-bio-text {
-    /* Зменены селектар */
-    margin: 0;
-    line-height: 1.7;
-    color: #444;
-    text-align: justify;
-}
-
-/* =============================================== */
 /* Спіс жанраў */
 /* =============================================== */
 .genres-list {
     list-style: none;
     padding: 0;
     margin: 0;
+    /* Ужо зададзен gap у .artist-description-details */
     display: flex;
     flex-wrap: wrap;
     /* Каб жанры пераносіліся на новы радок */
     gap: 10px;
     /* Адлегласць паміж асобнымі жанрамі */
-    margin-top: 15px;
+    /* margin-top: 15px; Можна выдаліць, калі gap у бацькоўскім элеменце дастатковы */
 }
 
 .genres-list .ganres-item {
-    /* Зменены клас li на .ganres-item */
     background-color: #e0e7f7;
     color: #4a679e;
     padding: 8px 15px;
@@ -241,17 +236,42 @@ body.modal-open {
 }
 
 /* =============================================== */
-/* Спіс альбомаў */
+/* Біяграфія */
 /* =============================================== */
+/* Загаловак біяграфіі */
+.artist-bio h3 {
+    margin: 0 0 10px;
+    font-size: 1.2em;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+/* Тэкст біяграфіі */
+.artist-info-bio-text {
+    margin: 0;
+    line-height: 1.7;
+    color: #444;
+    text-align: justify;
+}
+
+/* =============================================== */
+/* НІЖНІ БЛОК: Спіс альбомаў */
+/* =============================================== */
+.artist-albums-block {
+    width: 100%;
+    /* Займае ўсю даступную шырыню */
+}
+
 .artist-albums-list {
     list-style: none;
     padding: 0;
-    margin: 40px 0 20px;
-    /* Адступ зверху, знізу для пагінацыі */
+    margin: 0;
+    /* Адступ зверху ад загалоўка "Альбоми" */
     display: grid;
-    /* 4 калонкі на шырокіх экранах, з аўто-падгонкой для меншых */
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    /* 4 калонкі на шырокіх экранах, з аўто-падгонкой */
+    gap: 20px;
     /* Адлегласць паміж карткамі альбомаў */
 }
 
@@ -285,11 +305,8 @@ body.modal-open {
     padding: 0;
     margin: 0;
     border: 1px solid #ddd;
-    /* Агульная рамка для табліцы трэкаў */
     border-radius: 8px;
-    /* Закругленыя вуглы для ўсяго спісу трэкаў */
     overflow: hidden;
-    /* Каб border-radius працаваў для змесціва */
 }
 
 .album-track-item {
@@ -301,16 +318,12 @@ body.modal-open {
 
 .album-track-item:last-child {
     border-bottom: none;
-    /* Выдаліць ніжнюю мяжу ў апошняга элемента */
 }
 
-/* Стылізацыя кожнага другога радка трэка */
 .album-track-item.even-row {
     background-color: #f9f9f9;
-    /* Шэры фон */
 }
 
-/* Загаловак трэкаў */
 .album-track-item.track-header {
     background-color: #f2f2f2;
     font-weight: bold;
@@ -328,7 +341,6 @@ body.modal-open {
 
 .album-track-item .track-info-item {
     flex: 1;
-    /* Раўнамернае размеркаванне прасторы */
     padding: 0 5px;
     text-align: left;
     font-size: 0.9em;
@@ -336,16 +348,12 @@ body.modal-open {
 }
 
 .album-track-item .track-info-item:nth-child(2) {
-    /* Для часу */
     flex: 0 0 80px;
-    /* Фіксаваная шырыня для часу */
     text-align: right;
 }
 
 .album-track-item .track-info-item:nth-child(3) {
-    /* Для спасылкі */
     flex: 0 0 70px;
-    /* Фіксаваная шырыня для кнопкі */
     text-align: center;
 }
 
@@ -360,7 +368,6 @@ body.modal-open {
     font-size: 0.8em;
     transition: background-color 0.2s ease, transform 0.2s ease;
     display: inline-flex;
-    /* Каб тэкст і іконка былі ў адным радку */
     align-items: center;
     justify-content: center;
 }
@@ -377,7 +384,6 @@ body.modal-open {
     text-align: center;
     margin-top: 30px;
     margin-bottom: 20px;
-    /* Для візуальнага водступу ад ніжняга края модала */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -416,82 +422,95 @@ body.modal-open {
 /* =============================================== */
 /* Медыя-запыты для адаптыўнасці */
 /* =============================================== */
-@media (max-width: 992px) {
-    .modal-artists {
-        padding: 40px;
+
+/* Для планшэтаў і дэсктопаў (768px і больш) */
+@media (min-width: 768px) {
+    .artist-overview-block {
+        flex-wrap: nowrap;
+        /* Блокі ідуць у адзін радок */
     }
 
-    .modal-content-wrapper {
-        padding: 25px;
+    .hero-artist-container {
+        width: auto;
+        /* Аўтаматычная шырыня */
     }
 
-    .artist-main-block {
+    .artist-description-details {
+        flex-grow: 1;
+        min-width: auto;
+        /* Скідваем min-width для гнуткасці */
+    }
+
+    /* Спіс альбомаў на дэсктопах - 4 калонкі */
+    .artist-albums-list {
+        grid-template-columns: repeat(4, 1fr);
+        /* Дакладна 4 калонкі */
+        gap: 25px;
+        /* Адлегласць паміж карткамі альбомаў */
+    }
+}
+
+/* Для мабільных прылад (менш за 768px) */
+@media (max-width: 767px) {
+    .artist-overview-block {
         flex-direction: column;
+        /* Блокі становяцца адзін пад адным */
         align-items: center;
         /* Цэнтраванне элементаў у калонцы */
-        text-align: center;
-        /* Цэнтраванне тэксту ў гэтым блоку */
     }
 
+    /* Назва артыста ў модале на мабільных */
+    .modal-title {
+        font-size: 2em;
+        margin-bottom: 20px;
+    }
+
+    /* Фота артыста на мабільных */
     .hero-artist-img {
-        margin-bottom: 25px;
-        /* Водступ знізу для фота */
+        width: 150px;
+        height: 150px;
     }
 
-    .artist-info-list {
-        grid-template-columns: 1fr;
-        /* Адзін слупок */
-    }
-
-    .artist-albums-list {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        /* Можа быць 2 ці 3 у радку */
-        gap: 20px;
-    }
-}
-
-@media (max-width: 768px) {
+    /* Змяншаем падынг модала на мабільных */
     .modal-artists {
         padding: 20px;
     }
 
-    .modal-content-wrapper {
+    .modal-content {
         padding: 20px;
     }
 
-    .modal-title {
-        font-size: 2em;
-    }
-
-    .close-modal {
-        font-size: 30px;
-        top: 10px;
-        right: 10px;
-    }
-
+    /* Спіс альбомаў на мабільных - 1 калонка */
     .artist-albums-list {
         grid-template-columns: 1fr;
-        /* Адзін альбом у радку на мабільных */
+    }
+
+    /* Выраўноўванне тэксту ў блоках апісання на мабільных */
+    .artist-info-list,
+    .genres-list,
+    .artist-info-bio-text {
+        text-align: center;
+        /* Цэнтраванне тэксту */
     }
 }
 
+/* Дадатковыя дробныя карэкціроўкі для самых малых экранаў */
 @media (max-width: 576px) {
     .modal-artists {
         padding: 10px;
     }
 
-    .modal-content-wrapper {
+    .modal-content {
         padding: 15px;
     }
 
     .modal-title {
         font-size: 1.8em;
-        margin-bottom: 20px;
     }
 
     .hero-artist-img {
-        width: 180px;
-        height: 180px;
+        width: 120px;
+        height: 120px;
     }
 
     .artist-info-list {
@@ -531,4 +550,169 @@ body.modal-open {
     .pagination-controls span {
         font-size: 1em;
     }
+}
+
+
+/* Гэтыя стылі не павінны быць у файле модалаў, але я пакідаю іх тут,
+   калі яны частка агульнага файла стыляў, які вы мне давалі. */
+.section-header {
+    padding: 4.5px 0px;
+    height: 72px;
+    background-color: rgb(6, 3, 7);
+}
+
+.header-container {
+    box-sizing: border-box;
+}
+
+.header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0px;
+}
+
+.nav-list {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 32px;
+}
+
+.nav-link {
+    display: block;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    transition: 200ms ease-in;
+    font-size: 18px;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+    color: rgb(116, 123, 255);
+}
+
+.mobile-menu {
+    background-color: blue;
+}
+
+@media only screen and (min-width: 768px) {
+    .mobile-menu {
+        display: none;
+    }
+}
+
+@media only screen and (min-width: 1440px) {}
+
+.hero-section {
+    background-color: rgb(35, 19, 43);
+    background-image: linear-gradient(rgb(6, 3, 7) 0%, rgba(35, 19, 43, 0) 100%), linear-gradient(0deg, rgb(6, 3, 7) 0%, rgba(35, 19, 43, 0) 100%);
+    background-size: 100% 80px, 100% 137px;
+    background-position: center top, center bottom;
+    background-repeat: no-repeat;
+}
+
+.hero-container {
+    display: flex;
+    margin: 0px auto;
+    max-width: 1440px;
+}
+
+.hero-first-block {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 671px;
+    max-height: 900px;
+    padding: 215.5px 0px;
+    flex: 1 1 0%;
+}
+
+.hero-descr {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    max-width: 640px;
+    max-height: 390px;
+}
+
+.main-title {
+    font-size: 84px;
+    line-height: 1.11;
+    letter-spacing: -0.01em;
+    margin: 0px;
+}
+
+.hero-text {
+    font-size: 20px;
+    line-height: 1.5;
+    letter-spacing: 0px;
+}
+
+.explore-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background-color: rgb(118, 65, 145);
+    padding: 10px 24px;
+    width: 206px;
+    height: 47px;
+    color: rgb(255, 255, 255);
+    font-weight: 500;
+    border-radius: 12px;
+}
+
+.explore-btn-icon {
+    fill: currentcolor;
+}
+
+.hero-second-block {
+    display: flex;
+    gap: 17px;
+    flex: 1 1 0%;
+    overflow: hidden;
+    height: 900px;
+    max-width: 641px;
+}
+
+.hero-column-one,
+.hero-column-two {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1 1 0%;
+}
+
+.hero-column-one {
+    margin-top: -116px;
+}
+
+.hero-column-two {
+    margin-bottom: -188px;
+}
+
+.hero-artist-img {
+    /* Гэты клас цяпер у HERO-секцыі, а не ў модале */
+    height: 340px;
+    width: 312px;
+    object-fit: cover;
+    display: block;
+    border-radius: 12px;
+}
+
+.artists-section {
+    background-color: blueviolet;
+}
+
+.feedback-section {
+    background-color: black;
+}
+
+.about-us-section {
+    background-color: aquamarine;
+}
+
+.footer-section {
+    background-color: rgb(116, 123, 255);
 }

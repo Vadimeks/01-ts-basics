@@ -1,23 +1,21 @@
 // js/modal-artists.js
-import {
-  fetchArtistDetailsWithTracks,
-  fetchArtistDetailsWithAlbums,
-} from './apiService.js'; // Імпартуем функцыі API
+import { fetchArtistDetailsWithTracks } from './apiService.js';
 
 // ===============================================
-// 1. Кэшаванне DOM-элементаў
+// 1. Кэшаванне DOM-элементаў мадальнага акна
 // ===============================================
 const artistModal = document.getElementById('artistModal');
 const closeModalButton = artistModal
   ? artistModal.querySelector('.close-modal')
   : null;
 const modalLoader = document.getElementById('modalLoader');
-const modalTitle = artistModal
-  ? artistModal.querySelector('.modal-title')
-  : null;
+
 const heroArtistImg = artistModal
   ? artistModal.querySelector('.hero-artist-img')
   : null;
+const modalTitle = artistModal
+  ? artistModal.querySelector('.modal-title')
+  : null; // Гэта h2, які будзе пад фота
 
 const artistInfoList = artistModal
   ? artistModal.querySelector('.artist-info-list')
@@ -85,7 +83,7 @@ function escapeKeyHandler(e) {
 }
 
 // ===============================================
-// 4. Функцыя для адлюстравання альбомаў (з пагінацыяй)
+// 4. Функцыя для адлюстравання альбомаў (з пагінацыяй) у мадальным акне
 // ===============================================
 function renderAlbums(page) {
   if (!artistAlbumsListContainer) return;
@@ -98,6 +96,13 @@ function renderAlbums(page) {
 
   if (albumsToDisplay.length === 0) {
     artistAlbumsListContainer.innerHTML = `<li class="artist-albums-item"><p>Інфармацыя пра альбомы адсутнічае.</p></li>`;
+    // Абавязкова выдаліць кнопкі пагінацыі, калі няма альбомаў
+    const existingPaginationControls = artistModal.querySelector(
+      '.pagination-controls'
+    );
+    if (existingPaginationControls) {
+      existingPaginationControls.remove();
+    }
     return;
   }
 
@@ -134,10 +139,11 @@ function renderAlbums(page) {
                                                 : '-'
                                             }</li>
                                             <li class="track-info-item">`;
-        // Праверка на карэктнасць URL: пачынаецца з http і не роўна "null"
+        // Праверка на карэктнасць URL для YouTube спасылак
         if (
-          track.movie && // Выкарыстоўваем 'movie' для YouTube спасылак
-          track.movie !== 'null' &&
+          track.movie &&
+          typeof track.movie === 'string' && // Пераканайцеся, што гэта радок
+          track.movie !== 'null' && // Праверка на радок "null"
           (track.movie.startsWith('http://') ||
             track.movie.startsWith('https://'))
         ) {
@@ -157,10 +163,11 @@ function renderAlbums(page) {
   });
 
   // ===============================================
-  // Стварэнне кнопак пагінацыі (за межамі ul.artist-albums-list)
+  // Стварэнне кнопак пагінацыі для альбомаў
   // ===============================================
   const totalPages = Math.ceil(allAlbums.length / albumsPerPage);
 
+  // Выдаляем існуючыя элементы пагінацыі, каб пазбегнуць дублявання
   const existingPaginationControls = artistModal.querySelector(
     '.pagination-controls'
   );
@@ -195,10 +202,11 @@ function renderAlbums(page) {
     paginationControls.appendChild(pageInfo);
     paginationControls.appendChild(nextButton);
 
-    if (artistAlbumsListContainer.parentElement) {
-      artistAlbumsListContainer.parentElement.appendChild(paginationControls);
+    const albumsBlock = artistModal.querySelector('.artist-albums-block');
+    if (albumsBlock) {
+      albumsBlock.appendChild(paginationControls);
     } else {
-      artistModal.appendChild(paginationControls);
+      artistModal.appendChild(paginationControls); // Запасны варыянт
     }
   }
 
@@ -220,21 +228,24 @@ function renderAlbums(page) {
 // 5. Функцыя для фарматавання часу (мілісекунды ў хвіліны:секунды)
 // ===============================================
 function formatDuration(ms) {
-  if (typeof ms !== 'number' || isNaN(ms)) {
+  // Упэўніваемся, што ms - лік, калі гэта радок, спрабуем пераўтварыць
+  const numMs = typeof ms === 'string' ? parseInt(ms, 10) : ms;
+
+  if (typeof numMs !== 'number' || isNaN(numMs) || numMs < 0) {
     return 'N/A';
   }
-  const totalSeconds = Math.floor(ms / 1000);
+  const totalSeconds = Math.floor(numMs / 1000);
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
 // ===============================================
-// 6. Галоўная функцыя для адкрыцця мадальнага акна артыста
+// 6. Галоўная функцыя для адкрыцця мадальнага акна артыста (экспартуецца)
 // ===============================================
-export async function openArtistModal(artistId) {
-  // <<< ВОСЬ ТУТ ДАДАДЗЕНЫ 'export'
-  // Кароткая праверка на існаванне асноўных элементаў модала
+// Цяпер функцыя openArtistModal прымае 'genres' як другі аргумент
+export async function openArtistModal(artistId, artistGenres = []) {
+  // Праверка на існаванне асноўных DOM-элементаў модала
   if (
     !artistModal ||
     !modalLoader ||
@@ -251,12 +262,12 @@ export async function openArtistModal(artistId) {
     return;
   }
 
-  // Паказваем мадальнае акно і загрузнік
+  // Паказваем мадальнае акно і лоадер
   document.body.classList.add('modal-open');
   artistModal.classList.add('open');
   modalLoader.style.display = 'block';
 
-  // Ачыстка старога кантэнту перад загрузкай
+  // Ачыстка старога кантэнту перад загрузкай новага
   modalTitle.textContent = 'Загрузка...';
   heroArtistImg.src = '';
   heroArtistImg.alt = '';
@@ -265,7 +276,7 @@ export async function openArtistModal(artistId) {
   genresList.innerHTML = '';
   artistAlbumsListContainer.innerHTML = '';
 
-  // Скід пагінацыі пры адкрыцці новага артыста
+  // Скід пагінацыі альбомаў пры адкрыцці новага артыста
   currentAlbumPage = 1;
   allAlbums = [];
 
@@ -278,9 +289,7 @@ export async function openArtistModal(artistId) {
   }
 
   try {
-    // Выкарыстоўваем функцыю fetchArtistDetailsWithTracks,
-    // бо яна вяртае tracksList непасрэдна з інфармацыяй пра артыста.
-    // Калі вы хочаце выкарыстоўваць albumsList, заменіце на fetchArtistDetailsWithAlbums.
+    // Выклікаем функцыю з apiService для атрымання дэталяў артыста з трэкамі
     const artistData = await fetchArtistDetailsWithTracks(artistId);
 
     modalLoader.style.display = 'none'; // Хаваем лоадер пасля атрымання дадзеных
@@ -324,12 +333,16 @@ export async function openArtistModal(artistId) {
     artistBioParagraph.innerHTML =
       artistData.strBiographyEN || 'Біяграфія адсутнічае.';
 
-    // Жанры (з artistData)
+    // Жанры (Цяпер выкарыстоўваем 'artistGenres' - перададзены з artists.js)
     genresList.innerHTML = ''; // Ачыстка перад даданнем
-    if (artistData.genres && artistData.genres.length > 0) {
-      artistData.genres.forEach(genre => {
+    if (
+      artistGenres &&
+      Array.isArray(artistGenres) &&
+      artistGenres.length > 0
+    ) {
+      artistGenres.forEach(genre => {
         const li = document.createElement('li');
-        li.className = 'ganres-item';
+        li.className = 'ganres-item'; // Клас для стылізацыі як кнопкі
         li.textContent = genre;
         genresList.appendChild(li);
       });
@@ -342,19 +355,17 @@ export async function openArtistModal(artistId) {
 
     // ===============================================
     // ЛОГІКА ДЛЯ АЛЬБОМАЎ З ПЕРАЎТВАРЭННЕМ ТРЭКАЎ
-    // Выкарыстоўваем artistData.tracksList, бо гэты эндпоінт яго вяртае.
-    // = Калі б вы выкарыстоўвалі fetchArtistDetailsWithAlbums, тут было б artistData.albumsList >
     // ===============================================
     if (artistData.tracksList && artistData.tracksList.length > 0) {
       // Групоўка трэкаў па альбомах
       const albumsMap = new Map();
       artistData.tracksList.forEach(track => {
         const albumName = track.strAlbum || 'Невядомы альбом';
-        const albumId = track.idAlbum || albumName; // Выкарыстоўваем ID альбома або назву для унікальнасці
+        const albumId = track.idAlbum || albumName;
         if (!albumsMap.has(albumId)) {
           albumsMap.set(albumId, {
             strAlbum: albumName,
-            intYearReleased: track.intYearReleased || 'Невядома', // Год можа быць не ва ўсіх трэках
+            intYearReleased: track.intYearReleased || 'Невядома',
             idAlbum: albumId,
             tracks: [],
           });
@@ -364,15 +375,21 @@ export async function openArtistModal(artistId) {
 
       // Пераўтвараем Map у масіў і сартуем па годзе выпуску (змяншальна)
       allAlbums = Array.from(albumsMap.values()).sort((a, b) => {
-        // Парсім год, калі ён ёсць, інакш лічым 0
         const yearA = parseInt(a.intYearReleased) || 0;
         const yearB = parseInt(b.intYearReleased) || 0;
-        return yearB - yearA; // Сартаванне ад новых да старых
+        return yearB - yearA;
       });
 
       renderAlbums(currentAlbumPage); // Адлюстроўваем першую старонку
     } else {
       artistAlbumsListContainer.innerHTML = `<li class="artist-albums-item"><p>Інфармацыя пра альбомы і трэкі адсутнічае.</p></li>`;
+      // Калі няма альбомаў, выдаліць кнопкі пагінацыі, калі яны існавалі
+      const existingPaginationControls = artistModal.querySelector(
+        '.pagination-controls'
+      );
+      if (existingPaginationControls) {
+        existingPaginationControls.remove();
+      }
     }
   } catch (error) {
     modalLoader.style.display = 'none'; // Хаваем лоадер нават пры памылцы
@@ -381,7 +398,6 @@ export async function openArtistModal(artistId) {
       let errorMessage =
         'На жаль, не ўдалося загрузіць дадзеныя пра выканаўцу. ';
       if (error.response) {
-        // Апрацоўка памылак axios
         errorMessage += `Статус: ${error.response.status}. `;
         if (error.response.status === 404) {
           errorMessage +=

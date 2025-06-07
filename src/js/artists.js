@@ -94,9 +94,14 @@ function renderArtists(artists, clearPrevious = false) {
       const artistItem = event.target.closest('.artist-item');
       if (artistItem) {
         const artistId = artistItem.dataset.artistId; // Атрымліваем ID артыста з data-атрыбута
+
+        // Знайсці аб'ект артыста з арыгінальнага спісу, каб атрымаць жанры
+        const fullArtistData = artists.find(a => a._id === artistId);
+        const artistGenres = fullArtistData ? fullArtistData.genres : []; // Атрымліваем жанры
+
         if (artistId) {
-          // Выклікаем функцыю openArtistModal з modal-artists.js
-          openArtistModal(artistId);
+          // Выклікаем функцыю openArtistModal з modal-artists.js, перадаючы жанры
+          openArtistModal(artistId, artistGenres); // <--- ВАЖНАЯ ЗМЕНА ТУТ
         } else {
           console.warn('Кнопка "Детальніше" не мае data-artist-id.');
         }
