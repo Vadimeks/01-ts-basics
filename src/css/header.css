@@ -1,6 +1,11 @@
 .section-header {
   padding: 4.5px 0;
   height: 72px;
+
+}
+
+.header-container {
+  box-sizing: border-box;
 }
 
 .header-nav {

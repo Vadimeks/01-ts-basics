@@ -1,0 +1,60 @@
+// hero-images.js
+document.addEventListener('DOMContentLoaded', () => {
+  const heroColumnOne = document.querySelector('.hero-column-one');
+  const heroColumnTwo = document.querySelector('.hero-column-two');
+
+  async function fetchArtists() {
+    try {
+      const response = await fetch(
+        'https://sound-wave.b.goit.study/api/artists?limit=6'
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // Было: console.log('Дадзеныя ад API:', data); // Выдаліць або закаментаваць пасля адладкі
+
+      // *** ЗМЯНЯЕМ ГЭТЫ РАДОК: ***
+      // Цяпер вяртаем data.artists, бо гэта той масіў, які нам патрэбны
+      return data.artists || []; // Добаўляем || [] на выпадак, калі data.artists будзе undefined
+    } catch (error) {
+      console.error('Памылка пры загрузцы артыстаў:', error);
+      return [];
+    }
+  }
+
+  async function displayHeroArtists() {
+    const artists = await fetchArtists();
+
+    // Было: console.log('Тып атрыманых артыстаў:', typeof artists, artists); // Выдаліць або закаментаваць
+    // Было: if (!Array.isArray(artists)) { ... } // Гэта цяпер не трэба, бо мы вяртаем масіў
+
+    if (artists.length === 0) {
+      console.warn(
+        'Няма дадзеных пра артыстаў для адлюстравання ў Hero-секцыі.'
+      );
+      return;
+    }
+
+    const columnOneArtists = artists.slice(0, 3);
+    const columnTwoArtists = artists.slice(3, 6);
+
+    function populateColumn(columnElement, artistData) {
+      const imgElements = columnElement.querySelectorAll('.hero-artist-img');
+      artistData.forEach((artist, index) => {
+        if (imgElements[index]) {
+          imgElements[index].src = artist.strArtistThumb;
+          imgElements[index].alt = artist.strArtist || 'Artist photo';
+        }
+      });
+    }
+
+    populateColumn(heroColumnOne, columnOneArtists);
+    populateColumn(heroColumnTwo, columnTwoArtists);
+  }
+
+  displayHeroArtists();
+});
