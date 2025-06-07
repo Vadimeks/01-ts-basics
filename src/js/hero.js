@@ -1,36 +1,30 @@
 // js/hero.js
-import axios from 'axios';
+import { fetchArtists } from './apiService.js'; // Імпартуем нашу функцыю з apiService.js
 
 document.addEventListener('DOMContentLoaded', () => {
   // === ЛОГІКА ДЛЯ ЗАГРУЗКІ МАЛЮНКАЎ АРТЫСТАЎ У HERO-СЕКЦЫЮ ===
   const heroColumnOne = document.querySelector('.hero-column-one');
   const heroColumnTwo = document.querySelector('.hero-column-two');
 
-  const API_BASE_URL = 'https://sound-wave.b.goit.study/api';
-
-  async function fetchHeroArtists() {
+  async function displayHeroArtists() {
+    let artists = [];
     try {
-      // Запытваем 6 артыстаў для Hero-секцыі
-      const response = await axios.get(`${API_BASE_URL}/artists?limit=6`);
-      // API вяртае аб'ект з полем 'artists' або наўпрост масіў
-      const artists = response.data.artists || response.data || [];
-      return artists;
+      // Запытваем першых 6 артыстаў (limit=6, page=1)
+      const response = await fetchArtists(6, 1);
+      artists = response.artists || []; // Атрымліваем масіў артыстаў
     } catch (error) {
       console.error('Памылка пры загрузцы артыстаў для Hero-секцыі:', error);
-      return [];
+      // Калі памылка, застанецца пусты масіў, і папярэджанне выведзецца ніжэй
     }
-  }
-
-  async function displayHeroArtists() {
-    const artists = await fetchHeroArtists();
 
     if (artists.length === 0) {
       console.warn(
-        'Няма дадзеных пра артыстаў для адлюстравання ў Hero-секцыі. Праверце API.'
+        'Няма дадзеных пра артыстаў для адлюстравання ў Hero-секцыі. Праверце API ці даступнасць дадзеных.'
       );
       return;
     }
 
+    // Дзелім атрыманых артыстаў на дзве калонкі
     const columnOneArtists = artists.slice(0, 3);
     const columnTwoArtists = artists.slice(3, 6);
 
@@ -40,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (imgElements[index]) {
           imgElements[index].src =
             artist.strArtistThumb ||
-            'https://via.placeholder.com/150x150?text=No+Image';
+            'https://via.placeholder.com/150x150?text=No+Image'; // Запасны малюнак, калі фота няма
           imgElements[index].alt = artist.strArtist || 'Artist photo';
         }
       });
