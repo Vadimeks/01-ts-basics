@@ -1,4 +1,8 @@
-import axios from 'axios';
+// js/modal-artists.js
+import {
+  fetchArtistDetailsWithTracks,
+  fetchArtistDetailsWithAlbums,
+} from './apiService.js'; // Імпартуем функцыі API
 
 // ===============================================
 // 1. Кэшаванне DOM-элементаў
@@ -29,11 +33,11 @@ const artistAlbumsListContainer = artistModal
   : null;
 
 // ===============================================
-// 2. Пераменныя для кіравання пагінацыяй альбомаў
+// 2. Пераменныя для кіравання пагінацыяй альбомаў у мадальным акне
 // ===============================================
 let allAlbums = [];
 let currentAlbumPage = 1;
-const albumsPerPage = 8; // Па 8 альбомаў на старонку
+const albumsPerPage = 8; // Па 8 альбомаў на старонку ў мадальным акне
 
 // ===============================================
 // 3. Функцыі апрацоўшчыкаў закрыцця мадальнага акна
@@ -46,7 +50,7 @@ function closeArtistModal() {
     document.body.classList.remove('modal-open');
   }
   // Ачыстка кантэнту пры закрыцці, каб не было старых дадзеных
-  if (modalTitle) modalTitle.textContent = 'Назва виконавця';
+  if (modalTitle) modalTitle.textContent = 'Назва выканаўцы';
   if (heroArtistImg) {
     heroArtistImg.src = '';
     heroArtistImg.alt = '';
@@ -100,16 +104,16 @@ function renderAlbums(page) {
   albumsToDisplay.forEach(album => {
     let albumItemHtml = `<li class="artist-albums-item">
                                 <h3>${album.strAlbum || 'Назва альбому'} (${
-      album.intYearReleased || 'Рік'
+      album.intYearReleased || 'Год'
     })</h3>
                                 <ul class="album-track-list">`;
 
     // Загаловак табліцы трэкаў
     albumItemHtml += `<li class="album-track-item track-header">
                                 <ul class="track-info-list">
-                                    <li class="track-info-item">Трек</li>
+                                    <li class="track-info-item">Трэк</li>
                                     <li class="track-info-item">Час</li>
-                                    <li class="track-info-item">Посилання</li>
+                                    <li class="track-info-item">Спасылка</li>
                                 </ul>
                             </li>`;
 
@@ -120,7 +124,7 @@ function renderAlbums(page) {
                                         <ul class="track-info-list">
                                             <li class="track-info-item">${
                                               track.strTrack ||
-                                              'Назва композиції'
+                                              'Назва кампазіцыі'
                                             }</li>
                                             <li class="track-info-item">${
                                               track.intDuration
@@ -130,14 +134,14 @@ function renderAlbums(page) {
                                                 : '-'
                                             }</li>
                                             <li class="track-info-item">`;
-        // Проверка на корректность URL: начинается с http и не равно "null"
+        // Праверка на карэктнасць URL: пачынаецца з http і не роўна "null"
         if (
-          track.strMusicBrainzID && // Выкарыстоўваем strMusicBrainzID для YouTube спасылак
-          track.strMusicBrainzID !== 'null' &&
-          (track.strMusicBrainzID.startsWith('http://') ||
-            track.strMusicBrainzID.startsWith('https://'))
+          track.movie && // Выкарыстоўваем 'movie' для YouTube спасылак
+          track.movie !== 'null' &&
+          (track.movie.startsWith('http://') ||
+            track.movie.startsWith('https://'))
         ) {
-          albumItemHtml += `<button class="yt-button" data-url="${track.strMusicBrainzID}">YouTube</button>`;
+          albumItemHtml += `<button class="yt-button" data-url="${track.movie}">YouTube</button>`;
         } else {
           albumItemHtml += `-`;
         }
@@ -146,18 +150,17 @@ function renderAlbums(page) {
                                     </li>`;
       });
     } else {
-      albumItemHtml += `<li class="album-track-item"><p>Немає композицій для цього альбому.</p></li>`;
+      albumItemHtml += `<li class="album-track-item"><p>Няма кампазіцый для гэтага альбому.</p></li>`;
     }
     albumItemHtml += `</ul></li>`;
     artistAlbumsListContainer.insertAdjacentHTML('beforeend', albumItemHtml);
   });
 
   // ===============================================
-  // Стварэнне кнопак пагінацыі (за межамі ul.artist-albums-list, на адным узроўні з ім)
+  // Стварэнне кнопак пагінацыі (за межамі ul.artist-albums-list)
   // ===============================================
   const totalPages = Math.ceil(allAlbums.length / albumsPerPage);
 
-  // Выдаліць старыя элементы пагінацыі, калі яны існуюць
   const existingPaginationControls = artistModal.querySelector(
     '.pagination-controls'
   );
@@ -166,12 +169,11 @@ function renderAlbums(page) {
   }
 
   if (totalPages > 1) {
-    // Паказваем пагінацыю толькі калі больш адной старонкі
     const paginationControls = document.createElement('div');
     paginationControls.className = 'pagination-controls';
 
     const prevButton = document.createElement('button');
-    prevButton.textContent = 'Попередня';
+    prevButton.textContent = 'Папярэдняя';
     prevButton.disabled = page === 1;
     prevButton.addEventListener('click', () => {
       currentAlbumPage--;
@@ -179,7 +181,7 @@ function renderAlbums(page) {
     });
 
     const nextButton = document.createElement('button');
-    nextButton.textContent = 'Наступна';
+    nextButton.textContent = 'Наступная';
     nextButton.disabled = page === totalPages;
     nextButton.addEventListener('click', () => {
       currentAlbumPage++;
@@ -193,14 +195,9 @@ function renderAlbums(page) {
     paginationControls.appendChild(pageInfo);
     paginationControls.appendChild(nextButton);
 
-    // Дадаём пагінацыю пасля спісу альбомаў
-    // Выкарыстоўваем insertAdjacentElement для лепшай сумяшчальнасці і яснасці
     if (artistAlbumsListContainer.parentElement) {
       artistAlbumsListContainer.parentElement.appendChild(paginationControls);
     } else {
-      // Калі па нейкай прычыне artistAlbumsListContainer не мае бацькоўскага элемента,
-      // што малаверагодна ў дадзеным кантэксце, можна дадаць яго пасля самога модала
-      // або ў іншы даступны канэйнер.
       artistModal.appendChild(paginationControls);
     }
   }
@@ -208,7 +205,6 @@ function renderAlbums(page) {
   // ===============================================
   // Прывязваем падзеі да кнопак YouTube пасля абнаўлення DOM
   // ===============================================
-  // Важна: шукаем кнопкі толькі ўнутры мадальнага акна, каб не ўплываць на іншыя часткі старонкі.
   const ytButtons = artistModal.querySelectorAll('.yt-button');
   ytButtons.forEach(btn => {
     btn.addEventListener('click', function (e) {
@@ -236,7 +232,8 @@ function formatDuration(ms) {
 // ===============================================
 // 6. Галоўная функцыя для адкрыцця мадальнага акна артыста
 // ===============================================
-async function openArtistModal(artistId) {
+export async function openArtistModal(artistId) {
+  // <<< ВОСЬ ТУТ ДАДАДЗЕНЫ 'export'
   // Кароткая праверка на існаванне асноўных элементаў модала
   if (
     !artistModal ||
@@ -257,11 +254,11 @@ async function openArtistModal(artistId) {
   // Паказваем мадальнае акно і загрузнік
   document.body.classList.add('modal-open');
   artistModal.classList.add('open');
-  modalLoader.style.display = 'block'; // Паказваем лоадер
+  modalLoader.style.display = 'block';
 
   // Ачыстка старога кантэнту перад загрузкай
-  modalTitle.textContent = 'Загрузка...'; // Паказваем стан загрузкі
-  heroArtistImg.src = ''; // Ачыстка выявы
+  modalTitle.textContent = 'Загрузка...';
+  heroArtistImg.src = '';
   heroArtistImg.alt = '';
   artistInfoList.innerHTML = '';
   artistBioParagraph.innerHTML = '';
@@ -280,63 +277,60 @@ async function openArtistModal(artistId) {
     existingPaginationControls.remove();
   }
 
-  // Выкарыстоўваем правільны базавы URL API GoIT, які падтрымлівае CORS
-  const API_BASE_URL = 'https://sound-wave.b.goit.study/api';
-  // URL для атрымання інфармацыі пра канкрэтнага артыста па ID
-  const artistDataEndpoint = `${API_BASE_URL}/artists/${artistId}`;
-
   try {
-    const response = await axios.get(artistDataEndpoint);
-    const data = response.data;
+    // Выкарыстоўваем функцыю fetchArtistDetailsWithTracks,
+    // бо яна вяртае tracksList непасрэдна з інфармацыяй пра артыста.
+    // Калі вы хочаце выкарыстоўваць albumsList, заменіце на fetchArtistDetailsWithAlbums.
+    const artistData = await fetchArtistDetailsWithTracks(artistId);
 
     modalLoader.style.display = 'none'; // Хаваем лоадер пасля атрымання дадзеных
 
     // Запаўняем асноўную інфармацыю пра артыста
-    modalTitle.textContent = data.strArtist || 'Невядомы выканаўца';
+    modalTitle.textContent = artistData.strArtist || 'Невядомы выканаўца';
     heroArtistImg.src =
-      data.strArtistThumb ||
+      artistData.strArtistThumb ||
       'https://via.placeholder.com/250x250.png?text=No+Image'; // Заглушка
-    heroArtistImg.alt = data.strArtist || 'Фота выканаўцы';
+    heroArtistImg.alt = artistData.strArtist || 'Фота выканаўцы';
 
     // Інфармацыя пра артыста (годы, пол, удзельнікі, краіна)
     artistInfoList.innerHTML = `
                 <li class="artist-info-item">
                     <h3>Гады актыўнасці</h3>
                     <p class="artist-info">${
-                      data.intFormedYear || 'інфармацыя адсутнічае'
+                      artistData.intFormedYear || 'інфармацыя адсутнічае'
                     }</p>
                 </li>
                 <li class="artist-info-item">
                     <h3>Пол</h3>
                     <p class="artist-info">${
-                      data.strGender || 'інфармацыя адсутнічае'
+                      artistData.strGender || 'інфармацыя адсутнічае'
                     }</p>
                 </li>
                 <li class="artist-info-item">
                     <h3>Удзельнікі</h3>
                     <p class="artist-info">${
-                      data.intMembers || 'інфармацыя адсутнічае'
+                      artistData.intMembers || 'інфармацыя адсутнічае'
                     }</p>
                 </li>
                 <li class="artist-info-item">
                     <h3>Краіна</h3>
                     <p class="artist-info">${
-                      data.strCountry || 'інфармацыя адсутнічае'
+                      artistData.strCountry || 'інфармацыя адсутнічае'
                     }</p>
                 </li>
             `;
 
-    // Біяграфія (звярніце ўвагу, што біяграфія можа быць доўгай)
+    // Біяграфія
     artistBioParagraph.innerHTML =
-      data.strBiographyEN || 'Біяграфія адсутнічае.';
+      artistData.strBiographyEN || 'Біяграфія адсутнічае.';
 
-    // Жанры (як масіў радкоў) - выпраўлена, цяпер яны прыходзяць як масіў 'genres'
+    // Жанры (з artistData)
     genresList.innerHTML = ''; // Ачыстка перад даданнем
-    if (data.genres && data.genres.length > 0) {
-      data.genres.forEach(genre => {
+    if (artistData.genres && artistData.genres.length > 0) {
+      artistData.genres.forEach(genre => {
         const li = document.createElement('li');
-        li.className = 'ganres-item'; // Ваш клас ganres-item
-        li.textContent = genre; // Жанр - гэта радок
+        li.className = 'ganres-item';
+        li.textContent = genre;
         genresList.appendChild(li);
       });
     } else {
@@ -347,18 +341,20 @@ async function openArtistModal(artistId) {
     }
 
     // ===============================================
-    // НОВАЯ ЛОГІКА ДЛЯ АЛЬБОМАЎ З ПЕРАЎТВАРЭННЕМ ТРЭКАЎ
+    // ЛОГІКА ДЛЯ АЛЬБОМАЎ З ПЕРАЎТВАРЭННЕМ ТРЭКАЎ
+    // Выкарыстоўваем artistData.tracksList, бо гэты эндпоінт яго вяртае.
+    // = Калі б вы выкарыстоўвалі fetchArtistDetailsWithAlbums, тут было б artistData.albumsList >
     // ===============================================
-    if (data.tracks && data.tracks.length > 0) {
+    if (artistData.tracksList && artistData.tracksList.length > 0) {
       // Групоўка трэкаў па альбомах
       const albumsMap = new Map();
-      data.tracks.forEach(track => {
+      artistData.tracksList.forEach(track => {
         const albumName = track.strAlbum || 'Невядомы альбом';
-        const albumId = track.idAlbum; // Выкарыстоўваем ID альбома для унікальнасці
+        const albumId = track.idAlbum || albumName; // Выкарыстоўваем ID альбома або назву для унікальнасці
         if (!albumsMap.has(albumId)) {
           albumsMap.set(albumId, {
             strAlbum: albumName,
-            intYearReleased: track.intYearReleased,
+            intYearReleased: track.intYearReleased || 'Невядома', // Год можа быць не ва ўсіх трэках
             idAlbum: albumId,
             tracks: [],
           });
@@ -368,14 +364,15 @@ async function openArtistModal(artistId) {
 
       // Пераўтвараем Map у масіў і сартуем па годзе выпуску (змяншальна)
       allAlbums = Array.from(albumsMap.values()).sort((a, b) => {
-        const yearA = parseInt(a.intYearReleased);
-        const yearB = parseInt(b.intYearReleased);
+        // Парсім год, калі ён ёсць, інакш лічым 0
+        const yearA = parseInt(a.intYearReleased) || 0;
+        const yearB = parseInt(b.intYearReleased) || 0;
         return yearB - yearA; // Сартаванне ад новых да старых
       });
 
       renderAlbums(currentAlbumPage); // Адлюстроўваем першую старонку
     } else {
-      artistAlbumsListContainer.innerHTML = `<li class="artist-albums-item"><p>Інфармацыя пра альбомы адсутнічае.</p></li>`;
+      artistAlbumsListContainer.innerHTML = `<li class="artist-albums-item"><p>Інфармацыя пра альбомы і трэкі адсутнічае.</p></li>`;
     }
   } catch (error) {
     modalLoader.style.display = 'none'; // Хаваем лоадер нават пры памылцы
@@ -383,21 +380,18 @@ async function openArtistModal(artistId) {
       modalTitle.textContent = 'Памылка загрузкі дадзеных!';
       let errorMessage =
         'На жаль, не ўдалося загрузіць дадзеныя пра выканаўцу. ';
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          errorMessage += `Статус: ${error.response.status}. `;
-          if (error.response.status === 404) {
-            errorMessage +=
-              'Рэсурс не знойдзены па паказаным URL. Магчыма, няверны ID або API-шлях. Паспрабуйце іншы ID ці праверце дакументацыю API.';
-          } else if (error.response.data && error.response.data.message) {
-            errorMessage += `Паведамленне: ${error.response.data.message}`;
-          }
-        } else if (error.request) {
+      if (error.response) {
+        // Апрацоўка памылак axios
+        errorMessage += `Статус: ${error.response.status}. `;
+        if (error.response.status === 404) {
           errorMessage +=
-            'Не ўдалося атрымаць адказ ад сервера. Магчыма, праблема з сеткай.';
-        } else {
-          errorMessage += `Паведамленне: ${error.message}`;
+            'Рэсурс не знойдзены па паказаным URL. Магчыма, няверны ID або API-шлях. Паспрабуйце іншы ID ці праверце дакументацыю API.';
+        } else if (error.response.data && error.response.data.message) {
+          errorMessage += `Паведамленне: ${error.response.data.message}`;
         }
+      } else if (error.request) {
+        errorMessage +=
+          'Не ўдалося атрымаць адказ ад сервера. Магчыма, праблема з сеткай.';
       } else {
         errorMessage += `Паведамленне: ${error.message}`;
       }
@@ -413,95 +407,9 @@ async function openArtistModal(artistId) {
 }
 
 // ===============================================
-// НОВАЯ ЛОГІКА ДЛЯ ДЫНАМІЧНАЙ ЗАГРУЗКІ І АДЛЮСТРАВАННЯ КАРТАК АРТЫСТАЎ
-// (у секцыі "Нашыя выканаўцы")
-// ===============================================
-const artistsCardsContainer = document.getElementById(
-  'artists-cards-container'
-);
-
-async function fetchAndRenderArtists() {
-  if (!artistsCardsContainer) {
-    console.error(
-      'Кантэйнер для дынамічных картак артыстаў (#artists-cards-container) не знойдзены.'
-    );
-    return;
-  }
-
-  artistsCardsContainer.innerHTML =
-    '<p class="loading-message">Загрузка выканаўцаў...</p>';
-
-  try {
-    // Запытваем спіс артыстаў. Абмежаванне на 9, калі трэба больш, змяніце 'limit'.
-    const response = await axios.get(
-      'https://sound-wave.b.goit.study/api/artists?limit=9'
-    );
-    // Ваш API вяртае спіс артыстаў напрамую ў data, не ў data.artists.
-    // Аднак, калі API зменіцца і будзе вяртаць у data.artists, абодва варыянты будуць працаваць.
-    const artists = response.data.artists || response.data || [];
-
-    artistsCardsContainer.innerHTML = ''; // Ачышчаем паведамленне пра загрузку
-
-    if (artists.length === 0) {
-      artistsCardsContainer.innerHTML =
-        '<p class="no-data-message">На жаль, не ўдалося загрузіць інфармацыю пра выканаўцаў.</p>';
-      return;
-    }
-
-    artists.forEach(artist => {
-      // Абыходжанне з доўгім апісаннем: абрэзаць да двух радкоў
-      // Праверка на існаванне strBiographyEN, бо яна можа быць null
-      const shortBio = artist.strBiographyEN
-        ? artist.strBiographyEN.split('. ').slice(0, 2).join('. ') +
-          (artist.strBiographyEN.split('. ').length > 2 ? '...' : '')
-        : 'Кароткі апісанне адсутнічае.';
-
-      // Жанры для адлюстравання ў картцы: толькі першыя два, калі ёсць
-      // Выпраўлена: цяпер выкарыстоўваем artist.genres, якое з'яўляецца масівам радкоў
-      const displayGenres =
-        artist.genres && artist.genres.length > 0
-          ? artist.genres.slice(0, 2).join(', ')
-          : 'Без жанру';
-
-      const artistCardHtml = `
-                    <div class="artist-card">
-                        <img src="${
-                          artist.strArtistThumb ||
-                          'https://via.placeholder.com/150x150?text=No+Image'
-                        }"
-                            alt="${artist.strArtist || 'Фота выканаўцы'}"
-                            class="artist-card-img">
-                        <div class="artist-card-content">
-                            <h3>${artist.strArtist || 'Невядомы выканаўца'}</h3>
-                            <p class="artist-card-genres">${displayGenres}</p>
-                            <p class="artist-card-bio">${shortBio}</p>
-                            <button class="learn-more-btn" data-artist-id="${
-                              artist._id
-                            }">Детальніше</button>
-                        </div>
-                    </div>
-                `;
-      artistsCardsContainer.insertAdjacentHTML('beforeend', artistCardHtml);
-    });
-  } catch (error) {
-    console.error(
-      'Памылка пры загрузцы выканаўцаў для секцыі "Artists":',
-      error
-    );
-    artistsCardsContainer.innerHTML =
-      '<p class="error-message">Памылка загрузкі выканаўцаў. Паспрабуйце абнавіць старонку.</p>';
-    if (axios.isAxiosError(error) && error.code === 'ERR_NETWORK') {
-      artistsCardsContainer.innerHTML +=
-        '<p class="error-message">Магчыма, праблема з сеткай або CORS.</p>';
-    }
-  }
-}
-
-// ===============================================
-// 7. Ініцыялізацыя апрацоўшчыкаў падзей
+// 7. Ініцыялізацыя апрацоўшчыкаў падзей для закрыцця мадальнага акна
 // ===============================================
 document.addEventListener('DOMContentLoaded', () => {
-  // Прымацоўваем апрацоўшчыкі падзей для закрыцця мадальнага акна
   if (closeModalButton) {
     closeModalButton.addEventListener('click', closeArtistModal);
   }
@@ -509,38 +417,4 @@ document.addEventListener('DOMContentLoaded', () => {
     artistModal.addEventListener('click', outsideClickHandler);
   }
   document.addEventListener('keydown', escapeKeyHandler);
-
-  // Выклікаем загрузку артыстаў пры загрузцы DOM для секцыі "Нашыя выканаўцы"
-  fetchAndRenderArtists();
-
-  // Апрацоўка клікаў па кнопках "Детальніше" праз дэлегаванне падзей
-  // Прымацоўваем апрацоўшчык да 'artists-cards-container', бо менавіта ў ім будуць дынамічныя карткі.
-  const artistsSectionContainer = document.getElementById(
-    'artists-cards-container'
-  );
-
-  if (artistsSectionContainer) {
-    artistsSectionContainer.addEventListener('click', event => {
-      const learnMoreBtn = event.target.closest('.learn-more-btn');
-
-      if (learnMoreBtn) {
-        const artistId = learnMoreBtn.dataset.artistId; // Атрымліваем ID артыста з data-атрыбута
-        if (artistId) {
-          console.log(
-            'Націснута кнопка "Детальніше" для артыста ID:',
-            artistId
-          );
-          openArtistModal(artistId);
-        } else {
-          console.warn(
-            'Кнопка "Детальніше" не мае data-artist-id. Праверце HTML.'
-          );
-        }
-      }
-    });
-  } else {
-    console.error(
-      'Кантэйнер для дынамічных артыстаў (#artists-cards-container) не знойдзены.'
-    );
-  }
 });
