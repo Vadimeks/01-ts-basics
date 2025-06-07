@@ -15,11 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = await response.json();
 
-      // Было: console.log('Дадзеныя ад API:', data); // Выдаліць або закаментаваць пасля адладкі
-
-      // *** ЗМЯНЯЕМ ГЭТЫ РАДОК: ***
-      // Цяпер вяртаем data.artists, бо гэта той масіў, які нам патрэбны
-      return data.artists || []; // Добаўляем || [] на выпадак, калі data.artists будзе undefined
+      return data.artists || [];
     } catch (error) {
       console.error('Памылка пры загрузцы артыстаў:', error);
       return [];
@@ -28,9 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function displayHeroArtists() {
     const artists = await fetchArtists();
-
-    // Было: console.log('Тып атрыманых артыстаў:', typeof artists, artists); // Выдаліць або закаментаваць
-    // Было: if (!Array.isArray(artists)) { ... } // Гэта цяпер не трэба, бо мы вяртаем масіў
 
     if (artists.length === 0) {
       console.warn(

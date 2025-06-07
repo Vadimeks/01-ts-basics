@@ -1,7 +1,7 @@
 .section-header {
   padding: 4.5px 0;
   height: 72px;
-
+  background-color: rgba(6, 3, 7, 1);
 }
 
 .header-container {
