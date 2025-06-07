@@ -1,5 +1,6 @@
 // hero-images.js
 document.addEventListener('DOMContentLoaded', () => {
+  // === ЛОГІКА ДЛЯ ЗАГРУЗКІ МАЛЮНКАЎ АРТЫСТАЎ ===
   const heroColumnOne = document.querySelector('.hero-column-one');
   const heroColumnTwo = document.querySelector('.hero-column-two');
 
@@ -14,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const data = await response.json();
-
       return data.artists || [];
     } catch (error) {
       console.error('Памылка пры загрузцы артыстаў:', error);
@@ -49,5 +49,27 @@ document.addEventListener('DOMContentLoaded', () => {
     populateColumn(heroColumnTwo, columnTwoArtists);
   }
 
+  // Выклікаем функцыю для адлюстравання малюнкаў пры загрузцы DOM
   displayHeroArtists();
+
+  // --- НОВАЯ ЛОГІКА ДЛЯ КНОПКІ "EXPLORE ARTISTS" ---
+  const exploreBtn = document.querySelector('.explore-btn');
+
+  if (exploreBtn) {
+    exploreBtn.addEventListener('click', event => {
+      // event.preventDefault(); // Гэта можна выкарыстоўваць, калі кнопка ўнутры формы,
+      // каб прадухіліць адпраўку формы
+
+      const targetSectionId = 'artists'; // ID вашай секцыі Artists
+      const targetSection = document.getElementById(targetSectionId);
+
+      if (targetSection) {
+        targetSection.scrollIntoView({
+          behavior: 'smooth', // Плаўная пракрутка
+        });
+      } else {
+        console.warn(`Секцыя з ID "${targetSectionId}" не знойдзена.`);
+      }
+    });
+  }
 });
