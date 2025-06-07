@@ -4,52 +4,51 @@ import axios from 'axios';
 const API_BASE_URL = 'https://sound-wave.b.goit.study/api';
 
 /**
- * Атрымлівае спіс жанраў.
- * @returns {Promise<Array>} - Масіў аб'ектаў жанраў.
+ * Fetches a list of genres.
+ * @returns {Promise<Array>} A promise that resolves to an array of genre objects.
  */
 export async function fetchGenres() {
   try {
     const response = await axios.get(`${API_BASE_URL}/genres`);
     return response.data;
   } catch (error) {
-    console.error('Памылка пры загрузцы спісу жанраў:', error);
+    console.error('Error fetching genre list:', error);
     throw error;
   }
 }
 
 /**
- * Атрымлівае спіс артыстаў з пагінацыяй.
- * @param {number} limit - Колькасць артыстаў на старонку.
- * @param {number} page - Нумар старонкі.
- * @returns {Promise<Object>} - Аб'ект з масівам артыстаў, агульнай колькасцю і інфармацыяй аб пагінацыі.
+ * Fetches a list of artists with pagination.
+ * @param {number} limit The number of artists to fetch per page.
+ * @param {number} page The page number to fetch.
+ * @returns {Promise<Object>} A promise that resolves to an object containing artists, totalArtists, page, and limit.
  */
 export async function fetchArtists(limit = 10, page = 1) {
   try {
     const response = await axios.get(`${API_BASE_URL}/artists`, {
       params: { limit, page },
     });
-    return response.data; // { artists: [], totalArtists: number, page: string, limit: string }
+    return response.data;
   } catch (error) {
-    console.error('Памылка пры загрузцы спісу артыстаў:', error);
+    console.error('Error fetching artist list:', error);
     throw error;
   }
 }
 
 /**
- * Атрымлівае падрабязную інфармацыю пра артыста па ID.
- * Гэты эндпоінт, як бачна з вашых дадзеных, уключае 'albumsList'.
- * @param {string} artistId - ID артыста.
- * @returns {Promise<Object>} - Аб'ект з падрабязнай інфармацыяй пра артыста.
+ * Fetches artist information and their albums by ID.
+ * @param {string} artistId The ID of the artist.
+ * @returns {Promise<Object>} A promise that resolves to an object containing artist details and albums.
  */
 export async function fetchArtistDetailsWithAlbums(artistId) {
   try {
     const response = await axios.get(
       `${API_BASE_URL}/artists/${artistId}/albums`
     );
-    return response.data; // Уключае albumsList
+    return response.data;
   } catch (error) {
     console.error(
-      `Памылка пры загрузцы дэталяў артыста з альбомамі (ID: ${artistId}):`,
+      `Error fetching artist details with albums (ID: ${artistId}):`,
       error
     );
     throw error;
@@ -57,18 +56,17 @@ export async function fetchArtistDetailsWithAlbums(artistId) {
 }
 
 /**
- * Атрымлівае падрабязную інфармацыю пра артыста па ID.
- * Гэты эндпоінт, як бачна з вашых дадзеных, уключае 'tracksList'.
- * @param {string} artistId - ID артыста.
- * @returns {Promise<Object>} - Аб'ект з падрабязнай інфармацыяй пра артыста.
+ * Fetches artist information and their tracks by ID.
+ * @param {string} artistId The ID of the artist.
+ * @returns {Promise<Object>} A promise that resolves to an object containing artist details and tracksList.
  */
 export async function fetchArtistDetailsWithTracks(artistId) {
   try {
-    const response = await axios.get(`${API_BASE_URL}/artists/${artistId}`); // Эндпоінт /artists/{id} вяртае tracksList
-    return response.data; // Уключае tracksList
+    const response = await axios.get(`${API_BASE_URL}/artists/${artistId}`);
+    return response.data;
   } catch (error) {
     console.error(
-      `Памылка пры загрузцы дэталяў артыста з трэкамі (ID: ${artistId}):`,
+      `Error fetching artist details with tracks (ID: ${artistId}):`,
       error
     );
     throw error;
@@ -76,12 +74,12 @@ export async function fetchArtistDetailsWithTracks(artistId) {
 }
 
 /**
- * Адпраўляе новы водгук.
- * @param {Object} feedbackData - Аб'ект з дадзенымі водгуку.
- * @param {string} feedbackData.name - Імя карыстальніка.
- * @param {number} feedbackData.rating - Рэйтынг (напрыклад, ад 1 да 5).
- * @param {string} feedbackData.descr - Апісанне/каментар.
- * @returns {Promise<Object>} - Аб'ект з паведамленнем аб апрацоўцы.
+ * Submits a new feedback.
+ * @param {Object} feedbackData - Object containing feedback data.
+ * @param {string} feedbackData.name - User's name.
+ * @param {number} feedbackData.rating - Rating (e.g., from 1 to 5).
+ * @param {string} feedbackData.descr - Description/comment.
+ * @returns {Promise<Object>} A promise that resolves to an object with a processing message.
  */
 export async function submitFeedback(feedbackData) {
   try {
@@ -89,68 +87,61 @@ export async function submitFeedback(feedbackData) {
       `${API_BASE_URL}/feedbacks`,
       feedbackData
     );
-    return response.data; // { message: "Feedback is processed" }
+    return response.data;
   } catch (error) {
-    console.error('Памылка пры адпраўцы водгуку:', error);
+    console.error('Error submitting feedback:', error);
     throw error;
   }
 }
 
 /**
- * Атрымлівае спіс водгукаў з пагінацыяй.
- * @param {number} limit - Колькасць водгукаў на старонку.
- * @param {number} page - Нумар старонкі.
- * @returns {Promise<Object>} - Аб'ект з масівам водгукаў, агульнай колькасцю і інфармацыяй аб пагінацыі.
+ * Fetches a list of feedbacks with pagination.
+ * @param {number} limit - The number of feedbacks per page.
+ * @param {number} page - The page number.
+ * @returns {Promise<Object>} A promise that resolves to an object containing an array of feedbacks, total count, and pagination info.
  */
 export async function fetchFeedbacks(limit = 10, page = 1) {
   try {
     const response = await axios.get(`${API_BASE_URL}/feedbacks`, {
       params: { limit, page },
     });
-    return response.data; // { data: [], total: number, page: string, limit: string }
+    return response.data;
   } catch (error) {
-    console.error('Памылка пры загрузцы спісу водгукаў:', error);
+    console.error('Error fetching feedback list:', error);
     throw error;
   }
 }
 
-// Функцыі для рэгістрацыі і ўваходу (пакуль без рэалізацыі, бо не было падрабязных прыкладаў адказу)
-// Іх варта дадаць, калі будзе патрэба і вы дасце больш інфармацыі пра іх выкарыстанне і апрацоўку apiKey.
-
 /**
- * Рэгістрацыя карыстальніка.
- * @param {Object} userData - Дадзеныя для рэгістрацыі.
- * @param {string} userData.email - Адрас электроннай пошты.
- * @param {string} userData.password - Пароль.
- * @returns {Promise<Object>} - Аб'ект з apiKey.
+ * Registers a new user.
+ * @param {Object} userData - User registration data.
+ * @param {string} userData.email - User's email address.
+ * @param {string} userData.password - User's password.
+ * @returns {Promise<Object>} A promise that resolves to an object with an API key.
  */
 export async function registerUser(userData) {
   try {
-    // Рэалізацыя запыту для рэгістрацыі.
-    // Меркаваны эндпоінт і структура:
-    const response = await axios.post(`${API_BASE_URL}/register`, userData); // Мяркуемы эндпоінт
-    return response.data; // { apiKey: "..." }
+    const response = await axios.post(`${API_BASE_URL}/register`, userData);
+    return response.data;
   } catch (error) {
-    console.error('Памылка пры рэгістрацыі карыстальніка:', error);
+    console.error('Error registering user:', error);
     throw error;
   }
 }
 
 /**
- * Уваход карыстальніка.
- * @param {Object} credentials - Уліковыя дадзеныя карыстальніка.
- * @param {string} credentials.email - Адрас электроннай пошты.
- * @param {string} credentials.password - Пароль.
- * @returns {Promise<Object>} - Аб'ект з apiKey.
+ * Logs in a user.
+ * @param {Object} credentials - User login credentials.
+ * @param {string} credentials.email - User's email address.
+ * @param {string} credentials.password - User's password.
+ * @returns {Promise<Object>} A promise that resolves to an object with an API key.
  */
 export async function loginUser(credentials) {
   try {
-    // Рэалізацыя запыту для ўваходу.
-    // Меркаваны эндпоінт і структура:
-    const response = await axios.post(`${API_BASE_URL}/login`, credentials); // Мяркуемы эндпоінт
-    return response.data; // { apiKey: "..." }
+    const response = await axios.post(`${API_BASE_URL}/login`, credentials);
+    return response.data;
   } catch (error) {
-    console.error('Памылка пры ўваходзе карыстальніка:', error);
+    console.error('Error logging in user:', error);
     throw error;
   }
 }
