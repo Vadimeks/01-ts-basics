@@ -1,3 +1,239 @@
+/* src/css/feedback.css */
+
 .feedback-section {
     background-color: black;
+    padding: 64px 0;
+    color: white;
+}
+
+.feedback-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    border: 0;
+    padding: 0;
+    white-space: nowrap;
+    clip-path: inset(100%);
+    clip: rect(0 0 0 0);
+    overflow: hidden;
+}
+
+.feedback-swiper {
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+    /* Base padding-bottom for mobile pagination. Will be overridden on larger screens. */
+    padding-bottom: 40px !important;
+}
+
+.swiper-slide {
+    display: flex;
+    height: auto;
+    justify-content: center;
+    align-items: stretch;
+}
+
+/* ВАШЫ АРЫГІНАЛЬНЫЯ СТЫЛІ ДЛЯ КАРТКІ І ЯЕ ЗМЕСТУ */
+.feedback-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    align-items: center;
+    text-align: center;
+}
+
+.feedback-stars {
+    color: #764191;
+    margin-bottom: 32px;
+    max-width: 116px;
+    height: 18.89px;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.feedback-text {
+    font-style: italic;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    width: 288px;
+    height: 100px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.feedback-user {
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 1.5;
+    letter-spacing: 0;
+}
+
+/* КАНЕЦ ВАШЫХ АРЫГІНАЛЬНЫХ СТЫЛЯЎ */
+
+
+/* --- SWIPER NAVIGATION BUTTONS (BASE STYLES - apply to all screen sizes first, then overridden) --- */
+.feedback-swiper .swiper-button-prev,
+.feedback-swiper .swiper-button-next {
+    position: absolute !important;
+    cursor: pointer;
+    z-index: 10;
+    display: flex !important;
+    /* Make sure they are initially visible (will be hidden on mobile later) */
+    justify-content: center !important;
+    align-items: center !important;
+    transition: background-color 0.3s ease, opacity 0.3s ease;
+
+    background-image: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+
+    /* Explicitly target and hide Swiper's default arrow pseudo-element */
+    &::after {
+        content: '' !important;
+        display: none !important;
+    }
+}
+
+/* Styles for disabled navigation buttons (applies to all screen sizes) */
+.feedback-swiper .swiper-button-prev.swiper-button-disabled,
+.feedback-swiper .swiper-button-next.swiper-button-disabled {
+    opacity: 0.5 !important;
+    cursor: auto !important;
+    pointer-events: none !important;
+}
+
+
+/* --- SWIPER PAGINATION (DOTS) BASE STYLES --- */
+.feedback-swiper .swiper-pagination {
+    position: absolute;
+    bottom: 16px !important;
+    /* Position 16px below the swiper-wrapper */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+    display: flex !important;
+    /* Make sure pagination is initially visible (will be hidden on desktop later) */
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.feedback-swiper .swiper-pagination-bullet {
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    /* Inactive color */
+    opacity: 1 !important;
+    /* Ensure full opacity for inactive state */
+    margin: 0 4px !important;
+    /* Space between dots */
+    transition: background-color 0.3s ease;
+}
+
+/* Active pagination bullet style */
+.feedback-swiper .swiper-pagination-bullet-active {
+    background-color: #FFFFFF !important;
+    /* Active color: pure white */
+}
+
+
+/* --- MOBILE STYLES (max-width: 767px) --- */
+@media (max-width: 767px) {
+    .feedback-swiper {
+        padding-bottom: 40px !important;
+        /* Space for pagination dots on mobile */
+    }
+
+    /* Hide navigation buttons on mobile screens */
+    .feedback-swiper .swiper-button-prev,
+    .feedback-swiper .swiper-button-next {
+        display: none !important;
+    }
+
+    /* Show pagination dots on mobile screens */
+    .feedback-swiper .swiper-pagination {
+        display: flex !important;
+        /* Ensure pagination dots are shown on mobile */
+    }
+}
+
+
+/* --- TABLET AND DESKTOP STYLES (min-width: 768px) --- */
+@media (min-width: 768px) {
+    .feedback-swiper {
+        padding-bottom: 0 !important;
+        /* No bottom padding needed as buttons are at sides */
+    }
+
+    .feedback-card {
+        padding: 32px !important;
+    }
+
+    /* Show navigation buttons on tablet/desktop screens */
+    .feedback-swiper .swiper-button-prev,
+    .feedback-swiper .swiper-button-next {
+        top: 50% !important;
+        bottom: auto !important;
+        transform: translateY(-50%) !important;
+
+        width: 60px !important;
+        height: 60px !important;
+        border-radius: 50% !important;
+        background-color: rgba(255, 255, 255, 0.2) !important;
+
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 24px 24px !important;
+
+        display: flex !important;
+        /* Ensure navigation buttons are shown on tablet/desktop */
+        pointer-events: auto !important;
+    }
+
+    .feedback-swiper .swiper-button-prev {
+        left: 0 !important;
+        margin-left: 0 !important;
+        right: auto !important;
+        background-image: url('../img/arrow-left.svg') !important;
+    }
+
+    .feedback-swiper .swiper-button-next {
+        right: 0 !important;
+        margin-right: 0 !important;
+        left: auto !important;
+        background-image: url('../img/arrow-right.svg') !important;
+    }
+
+    .feedback-swiper .swiper-button-prev:hover,
+    .feedback-swiper .swiper-button-next:hover {
+        background-color: rgba(255, 255, 255, 0.4) !important;
+    }
+
+    /* Hide pagination dots on tablet/desktop screens */
+    .feedback-swiper .swiper-pagination {
+        display: none !important;
+    }
+}
+
+/* --- DESKTOP STYLES (min-width: 1440px) --- */
+@media (min-width: 1440px) {
+    .feedback-swiper .swiper-button-prev {
+        left: -80px !important;
+    }
+
+    .feedback-swiper .swiper-button-next {
+        right: -80px !important;
+    }
 }
