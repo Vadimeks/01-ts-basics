@@ -10,7 +10,7 @@ export default defineConfig(({ command }) => {
       [command === 'serve' ? 'global' : '_global']: {},
     },
     root: 'src',
-    base: '/test/',
+    base: '/01-ts-basics/',
     build: {
       sourcemap: true,
       rollupOptions: {
